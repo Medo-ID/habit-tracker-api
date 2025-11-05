@@ -1,12 +1,17 @@
 {
   "name": "api-design-v5",
   "version": "1.0.0",
-  "description": "Habit Tracker API for Node.js course",
+  "description": "Habit Tracker API for Node.js",
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
     "dev": "node --watch src/index.ts",
     "start": "node src/index.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "node src/db/seed.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
@@ -44,7 +49,7 @@
     "@types/node": "^20.11.5",
     "@types/supertest": "^6.0.2",
     "cross-env": "^10.0.0",
-    "drizzle-kit": "^0.18.1",
+    "drizzle-kit": "^0.31.6",
     "supertest": "^6.3.4",
     "tsx": "^4.20.4",
     "typescript": "^5.9.2",
