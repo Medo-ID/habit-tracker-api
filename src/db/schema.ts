@@ -6,9 +6,14 @@ import {
   integer,
   boolean,
   timestamp,
+  pgEnum,
 } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
+import z from 'zod'
+
+// Enums
+export const frequencyEnum = pgEnum('frequenc', ['daily', 'weekly', 'monthly'])
 
 // Tables
 export const users = pgTable('users', {
@@ -23,6 +28,13 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
 
+export const refreshTokens = pgTable('refresh_tokens', {
+  userId: uuid('user_id')
+    .references(() => users.id, { onDelete: 'cascade' })
+    .notNull(),
+  refreshToken: text('refresh_token').notNull(),
+})
+
 export const habits = pgTable('habits', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id')
@@ -30,7 +42,7 @@ export const habits = pgTable('habits', {
     .notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
-  frequency: varchar('frequency', { length: 20 }).notNull(),
+  frequency: frequencyEnum(),
   targetCount: integer('target_count').default(1),
   isActive: boolean('is_active').default(true).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -67,8 +79,19 @@ export const habitTags = pgTable('habit_tags', {
 })
 
 // Relations
-export const userRelations = relations(users, ({ many }) => ({
+export const userRelations = relations(users, ({ one, many }) => ({
+  refreshToken: one(refreshTokens, {
+    fields: [users.id],
+    references: [refreshTokens.userId],
+  }),
   habits: many(habits),
+}))
+
+export const refreshTokenRelations = relations(refreshTokens, ({ one }) => ({
+  user: one(users, {
+    fields: [refreshTokens.userId],
+    references: [users.id],
+  }),
 }))
 
 export const habitsRelations = relations(habits, ({ one, many }) => ({
@@ -104,10 +127,31 @@ export const habitTagsRelations = relations(habitTags, ({ one }) => ({
 
 // Types
 export type User = typeof users.$inferSelect
+export type NewUser = typeof users.$inferInsert
+export type RefreshToken = typeof refreshTokens.$inferSelect
 export type Habit = typeof habits.$inferSelect
 export type Entry = typeof entries.$inferSelect
 export type Tag = typeof tags.$inferSelect
 export type HabitTag = typeof habitTags.$inferSelect
 
-export const insertUserSchema = createInsertSchema(users)
+// Validation schemas
+export const insertUserSchema = createInsertSchema(users, {
+  password: z
+    .string()
+    .min(8, {
+      message: 'The password must be at least 8 characters long.',
+    })
+    .regex(/[A-Z]/, {
+      message: 'The password must contain at least one uppercase letter.',
+    })
+    .regex(/[a-z]/, {
+      message: 'The password must contain at least one lowercase letter.',
+    })
+    .regex(/\d/, {
+      message: 'The password must contain at least one number.',
+    })
+    .regex(/[^A-Za-z0-9]/, {
+      message: 'The password must contain at least one special character.',
+    }),
+})
 export const selectUserSchema = createSelectSchema(users)

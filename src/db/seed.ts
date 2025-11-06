@@ -1,5 +1,14 @@
+import { generateTokens } from '../utils/jwt.ts'
+import { hashPassword } from '../utils/password.ts'
 import { db } from './connection.ts'
-import { users, habits, entries, tags, habitTags } from './schema.ts'
+import {
+  users,
+  habits,
+  entries,
+  tags,
+  habitTags,
+  refreshTokens,
+} from './schema.ts'
 
 export const seed = async () => {
   console.log('🌱 Start database seed....')
@@ -9,19 +18,31 @@ export const seed = async () => {
     await db.delete(habitTags)
     await db.delete(habits)
     await db.delete(tags)
+    await db.delete(refreshTokens)
     await db.delete(users)
 
     console.log('👤 Creating demo user....')
+    const hashedPassword = await hashPassword('Demo123@')
     const [demoUser] = await db
       .insert(users)
       .values({
         email: 'demo@user.com',
-        password: 'password',
+        password: hashedPassword,
+        username: 'demo99',
         firstName: 'demo',
         lastName: 'bemo',
-        username: 'demo99',
       })
       .returning()
+
+    const { refreshToken } = await generateTokens({
+      id: demoUser.id,
+      email: demoUser.email,
+      username: demoUser.username,
+    })
+    await db.insert(refreshTokens).values({
+      userId: demoUser.id,
+      refreshToken,
+    })
 
     console.log('🏷️ Creating tags....')
     const [healthTag] = await db
@@ -60,18 +81,20 @@ export const seed = async () => {
     }
 
     console.log('✅ DB seeded successfully')
-    console.log('User credentials:')
-    console.log(`email: ${demoUser.email}`)
-    console.log(`username: ${demoUser.username}`)
-    console.log(`password: ${demoUser.password}`)
+    console.log('🔑 Login Credentials:')
+    console.log('email: demo@user.com')
+    console.log('password: Demo123@')
   } catch (error) {
     console.error('❌ DB seed failed', error)
-    process.exit(1)
+    throw error
   }
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   seed()
     .then(() => process.exit(0))
-    .catch((e) => process.exit(1))
+    .catch((error) => {
+      console.error(error)
+      process.exit(1)
+    })
 }
