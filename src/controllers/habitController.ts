@@ -8,9 +8,8 @@ export async function createHabit(req: AuthenticatedRequest, res: Response) {
   try {
     const { name, description, frequency, targetCount, tagIds } = req.body
     const userId = req.user!.id
-    // start transaction for data consistency
+
     const result = await db.transaction(async (tx) => {
-      // create habit
       const [newHabit] = await tx
         .insert(habits)
         .values({
@@ -22,7 +21,6 @@ export async function createHabit(req: AuthenticatedRequest, res: Response) {
         })
         .returning()
 
-      // If tags are provided, create the associations
       if (tagIds && tagIds.length > 0) {
         const habitTagValues = tagIds.map((tagId: string) => ({
           habitId: newHabit.id,
@@ -47,7 +45,6 @@ export async function createHabit(req: AuthenticatedRequest, res: Response) {
 export async function getUserHabits(req: AuthenticatedRequest, res: Response) {
   try {
     const userId = req.user!.id
-    // habits with their tags for current user
     const userHabitsWithTags = await db.query.habits.findMany({
       where: eq(habits.userId, userId),
       with: {
@@ -75,10 +72,7 @@ export async function getUserHabits(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-export const getHabitById = async (
-  req: AuthenticatedRequest,
-  res: Response
-) => {
+export async function getHabitById(req: AuthenticatedRequest, res: Response) {
   try {
     const { id } = req.params
     const userId = req.user!.id
@@ -93,7 +87,7 @@ export const getHabitById = async (
         },
         entries: {
           orderBy: [desc(entries.completionDate)],
-          limit: 10, // Recent entries only
+          limit: 10,
         },
       },
     })
@@ -118,14 +112,13 @@ export const getHabitById = async (
   }
 }
 
-export const updateHabit = async (req: AuthenticatedRequest, res: Response) => {
+export async function updateHabit(req: AuthenticatedRequest, res: Response) {
   try {
     const { id } = req.params
     const userId = req.user!.id
     const { tagIds, ...updates } = req.body
 
     const result = await db.transaction(async (tx) => {
-      // Update the habit
       const [updatedHabit] = await tx
         .update(habits)
         .set({ ...updates, updatedAt: new Date() })
@@ -167,7 +160,25 @@ export const updateHabit = async (req: AuthenticatedRequest, res: Response) => {
   }
 }
 
-export const deleteHabit = async (req: AuthenticatedRequest, res: Response) => {
+export async function logHabitCompletion(
+  req: AuthenticatedRequest,
+  res: Response
+) {}
+export async function completeHabit(req: AuthenticatedRequest, res: Response) {}
+export async function getHabitsByTag(
+  req: AuthenticatedRequest,
+  res: Response
+) {}
+export async function addTagsToHabit(
+  req: AuthenticatedRequest,
+  res: Response
+) {}
+export async function removeTagFromHabit(
+  req: AuthenticatedRequest,
+  res: Response
+) {}
+
+export async function deleteHabit(req: AuthenticatedRequest, res: Response) {
   try {
     const { id } = req.params
     const userId = req.user!.id

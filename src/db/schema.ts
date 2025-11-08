@@ -62,7 +62,7 @@ export const entries = pgTable('entries', {
 export const tags = pgTable('tags', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: varchar('name', { length: 50 }),
-  color: varchar('color', { length: 7 }).default('#ec9100'),
+  color: varchar('color', { length: 7 }).default('#989da7'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
