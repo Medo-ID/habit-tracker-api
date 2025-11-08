@@ -2,7 +2,7 @@ import type { Response } from 'express'
 import type { AuthenticatedRequest } from '../middlewares/auth.ts'
 import { db } from '../db/connection.ts'
 import { habits, habitTags, tags } from '../db/schema.ts'
-import { and, eq, inArray } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 
 export async function createTag(req: AuthenticatedRequest, res: Response) {
   try {

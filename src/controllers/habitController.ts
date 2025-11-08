@@ -1,8 +1,8 @@
 import type { AuthenticatedRequest } from '../middlewares/auth.ts'
 import type { Response } from 'express'
 import { db } from '../db/connection.ts'
-import { habits, entries, habitTags, tags } from '../db/schema.ts'
-import { eq, and, desc, inArray } from 'drizzle-orm'
+import { habits, entries, habitTags } from '../db/schema.ts'
+import { eq, and, desc } from 'drizzle-orm'
 
 export async function createHabit(req: AuthenticatedRequest, res: Response) {
   try {
@@ -163,20 +163,145 @@ export async function updateHabit(req: AuthenticatedRequest, res: Response) {
 export async function logHabitCompletion(
   req: AuthenticatedRequest,
   res: Response
-) {}
-export async function completeHabit(req: AuthenticatedRequest, res: Response) {}
-export async function getHabitsByTag(
-  req: AuthenticatedRequest,
-  res: Response
-) {}
-export async function addTagsToHabit(
-  req: AuthenticatedRequest,
-  res: Response
-) {}
+) {
+  try {
+    const { habitId } = req.params
+    const { note } = req.body
+    const userId = req.user!.id
+
+    const [habit] = await db
+      .select()
+      .from(habits)
+      .where(and(eq(habits.id, habitId), eq(habits.userId, userId)))
+
+    if (!habit) {
+      return res.status(404).json({ error: 'Habit not found' })
+    }
+
+    const [newLog] = await db
+      .insert(entries)
+      .values({
+        habitId,
+        completionDate: new Date(),
+        note,
+      })
+      .returning()
+
+    res.status(201).json({
+      message: 'Habit completion logged',
+      log: newLog,
+    })
+  } catch (error) {
+    console.error('Log habit completion error:', error)
+    res.status(500).json({ error: 'Failed to log habit completion' })
+  }
+}
+
+export async function completeHabit(req: AuthenticatedRequest, res: Response) {
+  try {
+    const userId = req.user!.id
+    const habitId = req.params.id
+    const { note } = req.body
+
+    const [habit] = await db
+      .select()
+      .from(habits)
+      .where(and(eq(habits.id, habitId), eq(habits.userId, userId)))
+    if (!habit) {
+      return res.status(404).json({ error: 'Habit not found' })
+    }
+
+    if (!habit.isActive) {
+      return res
+        .status(400)
+        .json({ error: 'Can not complete an inactive habit' })
+    }
+
+    const [newEntry] = await db
+      .insert(entries)
+      .values({
+        habitId,
+        completionDate: new Date(),
+        note,
+      })
+      .returning()
+
+    res.json({ message: 'Habit completed', entry: newEntry })
+  } catch (error) {
+    console.error('Complete habit error', error)
+    res.status(500).json({ error: 'Failed to complete habit' })
+  }
+}
+
+export async function addTagsToHabit(req: AuthenticatedRequest, res: Response) {
+  try {
+    const userId = req.user!.id
+    const habitId = req.params.id
+    const { tagIds } = req.body
+
+    const [habit] = await db
+      .select()
+      .from(habits)
+      .where(and(eq(habits.id, habitId), eq(habits.userId, userId)))
+
+    if (!habit) {
+      return res.status(404).json({ error: 'Habit not found' })
+    }
+
+    const existingHabitTags = await db
+      .select()
+      .from(habitTags)
+      .where(eq(habitTags.habitId, habitId))
+
+    const existingTags = existingHabitTags.map((ht) => ht.tagId)
+    const newTagIds = tagIds.filter((id: string) => !existingTags.includes(id))
+
+    if (newTagIds.length > 0) {
+      const habitTagsValues = newTagIds.map((tagId: string) => ({
+        habitId,
+        tagId,
+      }))
+      await db.insert(habitTags).values(habitTagsValues)
+    }
+
+    res.json({ message: 'Tags added to habit' })
+  } catch (error) {
+    console.error('Add tags to habit error', error)
+    res.status(500).json({ error: 'Failed to add tags to habit' })
+  }
+}
+
 export async function removeTagFromHabit(
   req: AuthenticatedRequest,
   res: Response
-) {}
+) {
+  try {
+    const { id, tagId } = req.params
+    const userId = req.user!.id
+
+    // Verify habit belongs to user
+    const [habit] = await db
+      .select()
+      .from(habits)
+      .where(and(eq(habits.id, id), eq(habits.userId, userId)))
+
+    if (!habit) {
+      return res.status(404).json({ error: 'Habit not found' })
+    }
+
+    // Remove the tag association
+    await db
+      .delete(habitTags)
+      .where(and(eq(habitTags.habitId, id), eq(habitTags.tagId, tagId)))
+
+    res.json({
+      message: 'Tag removed from habit',
+    })
+  } catch (error) {
+    console.error('Remove tag from habit error:', error)
+    res.status(500).json({ error: 'Failed to remove tag from habit' })
+  }
+}
 
 export async function deleteHabit(req: AuthenticatedRequest, res: Response) {
   try {

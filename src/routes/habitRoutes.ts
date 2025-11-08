@@ -2,10 +2,13 @@ import { Router } from 'express'
 import z from 'zod'
 import { validateBody, validateParams } from '../middlewares/validation.ts'
 import {
+  addTagsToHabit,
+  completeHabit,
   createHabit,
   deleteHabit,
   getHabitById,
   getUserHabits,
+  removeTagFromHabit,
   updateHabit,
 } from '../controllers/habitController.ts'
 
@@ -31,12 +34,17 @@ const updateHabitSchema = z.object({
   tagIds: z.array(z.uuid()).optional(),
 })
 
-const uuidSchema = z.object({
-  id: z.uuid('Invalid habit ID format'),
+const addTagsSchema = z.object({
+  tagIds: z.array(z.uuid()).min(1, 'At least one tag ID is required'),
 })
 
-const completeParamsSchema = z.object({
-  id: z.string().max(3),
+const habitTagSchema = z.object({
+  id: z.uuid('Invalid habit ID format'),
+  tagId: z.uuid('Invalid tag ID format'),
+})
+
+const uuidSchema = z.object({
+  id: z.uuid('Invalid habit ID format'),
 })
 
 // Routes
@@ -51,10 +59,19 @@ habitRouter.put(
 )
 habitRouter.delete('/:id', validateParams(uuidSchema), deleteHabit)
 habitRouter.post(
-  '/:id/completed',
-  validateParams(completeParamsSchema),
-  validateBody(createHabitSchema),
-  (req, res) => {
-    res.json({ message: 'completed habit' }).status(201)
-  }
+  '/:id/complete',
+  validateParams(uuidSchema),
+  validateBody(z.object({ note: z.string().optional() })),
+  completeHabit
+)
+habitRouter.post(
+  '/:id/tags',
+  validateParams(uuidSchema),
+  validateBody(addTagsSchema),
+  addTagsToHabit
+)
+habitRouter.delete(
+  '/:id/tags/:tagId',
+  validateParams(habitTagSchema),
+  removeTagFromHabit
 )
