@@ -3,7 +3,7 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   test: {
     globals: true,
-    globalSetup: ['./tests/setup/globalSetup.ts'],
+    globalSetup: ['./tests/globalSetup.ts'],
     // Automatically clean up after each test to ensure isolation
     clearMocks: true,
     restoreMocks: true,
@@ -11,9 +11,9 @@ export default defineConfig({
     pool: 'threads',
     poolOptions: {
       threads: {
-        singleThread: true
-      }
-    }
+        singleThread: true,
+      },
+    },
   },
   plugins: [],
 })

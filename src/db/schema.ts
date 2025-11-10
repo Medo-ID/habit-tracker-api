@@ -13,7 +13,7 @@ import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
 import z from 'zod'
 
 // Enums
-export const frequencyEnum = pgEnum('frequenc', ['daily', 'weekly', 'monthly'])
+export const frequencyEnum = pgEnum('frequency', ['daily', 'weekly', 'monthly'])
 
 // Tables
 export const users = pgTable('users', {

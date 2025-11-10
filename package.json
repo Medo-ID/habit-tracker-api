@@ -4,6 +4,9 @@
   "description": "Habit Tracker API for Node.js",
   "main": "src/index.ts",
   "type": "module",
+  "engines": {
+    "node": ">=24.5.0"
+  },
   "scripts": {
     "dev": "node --watch src/index.ts",
     "start": "node src/index.ts",
@@ -12,7 +15,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:seed": "node src/db/seed.ts",
-    "test": "vitest run",
+    "test": "cross-env APP_STAGE=test vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
   },
