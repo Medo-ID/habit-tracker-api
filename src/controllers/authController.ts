@@ -1,11 +1,15 @@
-import type { Request, Response } from 'express'
+import type { NextFunction, Request, Response } from 'express'
 import { db } from '../db/connection.ts'
 import { refreshTokens, users } from '../db/schema.ts'
 import { hashPassword, verifyPassword } from '../utils/password.ts'
 import { generateTokens } from '../utils/jwt.ts'
 import { eq } from 'drizzle-orm'
 
-export async function register(req: Request, res: Response) {
+export async function register(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const hashedPassword = await hashPassword(req.body.password)
     const [user] = await db
@@ -39,12 +43,11 @@ export async function register(req: Request, res: Response) {
       accessToken,
     })
   } catch (error) {
-    console.error('Registration failed', error)
-    res.status(500).json({ error: 'failed to create user' })
+    next(error)
   }
 }
 
-export async function login(req: Request, res: Response) {
+export async function login(req: Request, res: Response, next: NextFunction) {
   try {
     const { email, password } = req.body
     console.log(email, password)
@@ -59,7 +62,7 @@ export async function login(req: Request, res: Response) {
     const isValidPassword = await verifyPassword(password, user.password)
 
     if (!isValidPassword) {
-      return res.status(401).json({ erroe: 'Invalid credentials' })
+      return res.status(401).json({ error: 'Invalid credentials' })
     }
 
     const { accessToken, refreshToken } = await generateTokens({
@@ -85,7 +88,6 @@ export async function login(req: Request, res: Response) {
       accessToken,
     })
   } catch (error) {
-    console.error('Login failed', error)
-    res.status(500).json({ error: 'failed to login user' })
+    next(error)
   }
 }

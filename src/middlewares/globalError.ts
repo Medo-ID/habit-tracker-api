@@ -12,10 +12,13 @@ export function globalError(
   res: Response,
   next: NextFunction
 ) {
-  console.log(err.stack)
+  console.log('error cause:', err.cause)
 
   let status = err.status || 500
   let message = err.message || 'Internal Server Error'
+
+  // Prefer err.cause.code if available
+  const errorCode = (err as any).code || (err.cause && (err.cause as any).code)
 
   if (err.name === 'ValidationError') {
     status = 400
@@ -27,13 +30,13 @@ export function globalError(
     message = 'Unauthorized'
   }
 
-  if (err.code === '23505') {
+  if (errorCode === '23505') {
     // PostgreSQL unique violation
     status = 409
     message = 'Resource already exists'
   }
 
-  if (err.code === '23503') {
+  if (errorCode === '23503') {
     // PostgreSQL foreign key violation
     status = 400
     message = 'Invalid reference'

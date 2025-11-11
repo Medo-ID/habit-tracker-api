@@ -10,7 +10,7 @@ import {
 import { generateTokens } from '../src/utils/jwt.ts'
 import { hashPassword } from '../src/utils/password.ts'
 
-interface TestUser {
+export interface TestUser {
   email: string
   username: string
   password: string
@@ -18,7 +18,7 @@ interface TestUser {
   lastName: string
 }
 
-interface TestHabit {
+export interface TestHabit {
   name: string
   description: string
   frequency: 'daily' | 'weekly' | 'monthly'
