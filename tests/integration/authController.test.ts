@@ -1,8 +1,7 @@
 import request from 'supertest'
-import { db } from '../../../src/db/connection.ts'
-import { refreshTokens, users } from '../../../src/db/schema.ts'
-import { app } from '../../../src/server.ts'
-import { except } from 'drizzle-orm/gel-core'
+import { db } from '../../src/db/connection.ts'
+import { refreshTokens, users } from '../../src/db/schema.ts'
+import { app } from '../../src/server.ts'
 
 describe('authController', () => {
   afterEach(async () => {
@@ -31,7 +30,7 @@ describe('authController', () => {
       })
 
       expect(response.status).toBe(400)
-      expect(response.body.error).toBe('Validation fails')
+      expect(response.body.error).toBe('Validation failed')
       expect(response.body.details.length).toBeGreaterThanOrEqual(1)
     })
 
@@ -43,7 +42,7 @@ describe('authController', () => {
       })
 
       expect(response.status).toBe(400)
-      expect(response.body.error).toBe('Validation fails')
+      expect(response.body.error).toBe('Validation failed')
       expect(response.body.details.length).toBeGreaterThanOrEqual(1)
     })
 

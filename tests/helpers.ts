@@ -1,3 +1,5 @@
+import request from 'supertest'
+import { app } from '../src/server.ts'
 import { db } from '../src/db/connection.ts'
 import {
   entries,
@@ -9,6 +11,8 @@ import {
 } from '../src/db/schema.ts'
 import { generateTokens } from '../src/utils/jwt.ts'
 import { hashPassword } from '../src/utils/password.ts'
+import { SignJWT } from 'jose'
+import { createSecretKey } from 'node:crypto'
 
 export interface TestUser {
   email: string
@@ -23,9 +27,17 @@ export interface TestHabit {
   description: string
   frequency: 'daily' | 'weekly' | 'monthly'
   targetCount: number
+  isActive?: boolean
 }
 
-export async function createTestUser(userData: Partial<TestUser> = {}) {
+export interface TestTag {
+  name: string
+  color: string
+}
+
+type HttpMethods = 'post' | 'get' | 'put' | 'patch' | 'delete' | 'option'
+
+export const createTestUser = async (userData: Partial<TestUser> = {}) => {
   const defaultUser: TestUser = {
     email: `${Date.now()}@example.com`,
     username: `testUser-${Date.now()}`,
@@ -55,10 +67,10 @@ export async function createTestUser(userData: Partial<TestUser> = {}) {
   return { user, accessToken, refreshToken, rawPassword: defaultUser.password }
 }
 
-export async function createTestHabit(
+export const createTestHabit = async (
   userId: string,
   habitData: Partial<TestHabit> = {}
-) {
+) => {
   const defaultData: TestHabit = {
     name: `Test Habit ${Date.now()}`,
     description: 'A test habit',
@@ -75,7 +87,43 @@ export async function createTestHabit(
   return habit
 }
 
-export async function cleanupTestDatabase() {
+export const createTags = async (tagData: Partial<TestTag> = {}) => {
+  const defaultData = {
+    name: 'Health',
+    color: '#939ca1',
+    ...tagData,
+  }
+
+  const [tag] = await db.insert(tags).values(defaultData).returning()
+  return tag
+}
+
+export const authenticatedRequest = async (
+  method: HttpMethods,
+  url: string,
+  data = {}
+) => {
+  const { accessToken } = await createTestUser()
+  const req = request(app)
+    [method](url)
+    .set('Authorization', `Bearer ${accessToken}`)
+  return ['post', 'put', 'patch'].includes(method) ? req.send(data) : req
+}
+
+export const generateFakeToken = async (
+  payload,
+  secret = 'wrong_secret',
+  experation: string
+) => {
+  const accessSecretKey = createSecretKey(secret, 'utf-8')
+  return await new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime(experation)
+    .sign(accessSecretKey)
+}
+
+export const cleanupTestDatabase = async () => {
   await db.delete(entries)
   await db.delete(habitTags)
   await db.delete(habits)

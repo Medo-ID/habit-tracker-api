@@ -15,7 +15,7 @@ export async function isAuthenticated(
     const token = authHeader && authHeader.split(' ')[1]
 
     if (!token) {
-      return res.status(401).json({ error: 'Bad Request' })
+      return res.status(400).json({ error: 'Bad Request' })
     }
 
     const payload = await verifyToken(token, 'access')
@@ -23,6 +23,6 @@ export async function isAuthenticated(
     console.log(req.user)
     next()
   } catch (error) {
-    res.status(403).json({ error: 'Unauthorized' })
+    res.status(401).json({ error: 'Unauthorized' })
   }
 }
