@@ -1,13 +1,9 @@
 import request from 'supertest'
-import { db } from '../../src/db/connection.ts'
-import { refreshTokens, users } from '../../src/db/schema.ts'
 import { app } from '../../src/server.ts'
+import { cleanupTestDatabase } from '../helpers.ts'
 
 describe('authController', () => {
-  afterEach(async () => {
-    await db.delete(refreshTokens)
-    await db.delete(users)
-  })
+  afterEach(async () => await cleanupTestDatabase())
 
   describe('register', () => {
     it('POST /api/auth/register, should return user and token', async () => {

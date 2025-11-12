@@ -21,7 +21,7 @@ describe('habitController', () => {
     targetCount: 8,
   }
 
-  beforeEach(async () => await cleanupTestDatabase())
+  afterEach(async () => await cleanupTestDatabase())
 
   describe('POST /api/habits/ createHabit', () => {
     it('should throw when user is not authenticated', async () => {

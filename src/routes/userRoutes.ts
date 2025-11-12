@@ -10,16 +10,18 @@ import {
 export const userRouter = Router()
 
 // Validation schemas
-const updateProfileSchema = z.object({
-  email: z.email('Invalid email format').optional(),
-  username: z
-    .string()
-    .min(3, 'Username must be at least 3 characters')
-    .max(50, 'Username too long')
-    .optional(),
-  firstName: z.string().max(100).optional(),
-  lastName: z.string().max(100).optional(),
-})
+const updateProfileSchema = z
+  .object({
+    email: z.email('Invalid email format').optional(),
+    username: z
+      .string()
+      .min(3, 'Username must be at least 3 characters')
+      .max(50, 'Username too long')
+      .optional(),
+    firstName: z.string().max(100).optional(),
+    lastName: z.string().max(100).optional(),
+  })
+  .strict()
 
 const changePasswordSchema = z.object({
   oldPassword: z.string().min(1, 'Current password is required'),

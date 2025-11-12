@@ -10,7 +10,6 @@ import {
 } from '../helpers.ts'
 import { app } from '../../src/server.ts'
 import { eq } from 'drizzle-orm'
-import { create } from 'ts-node'
 
 describe('tagController', () => {
   const demoTag = {

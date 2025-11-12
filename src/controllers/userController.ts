@@ -11,7 +11,7 @@ export async function getProfile(req: AuthenticatedRequest, res: Response) {
     const [user] = await db
       .select({
         id: users.id,
-        email: users.id,
+        email: users.email,
         username: users.username,
         firstName: users.firstName,
         lastName: users.lastName,
@@ -59,7 +59,7 @@ export async function updateProfile(req: AuthenticatedRequest, res: Response) {
       return res.status(404).json({ error: 'User not found' })
     }
 
-    res.status(201).json({ message: 'Profile updated', user: updatedUser })
+    res.json({ message: 'Profile updated', user: updatedUser })
   } catch (error) {
     console.error('Error updating user profile', error)
     res
