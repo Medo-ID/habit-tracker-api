@@ -1,5 +1,5 @@
 import type { AuthenticatedRequest } from '../middlewares/auth.ts'
-import type { Response } from 'express'
+import type { NextFunction, Response } from 'express'
 import { db } from '../db/connection.ts'
 import { habits, entries, habitTags } from '../db/schema.ts'
 import { eq, and, desc } from 'drizzle-orm'
@@ -233,7 +233,11 @@ export async function completeHabit(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-export async function addTagsToHabit(req: AuthenticatedRequest, res: Response) {
+export async function addTagsToHabit(
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const userId = req.user!.id
     const habitId = req.params.id
@@ -266,8 +270,7 @@ export async function addTagsToHabit(req: AuthenticatedRequest, res: Response) {
 
     res.json({ message: 'Tags added to habit' })
   } catch (error) {
-    console.error('Add tags to habit error', error)
-    res.status(500).json({ error: 'Failed to add tags to habit' })
+    next(error)
   }
 }
 

@@ -121,7 +121,7 @@ export async function deleteTag(req: AuthenticatedRequest, res: Response) {
       .where(eq(tags.id, tagId))
       .returning()
 
-    if (!deleteTag) {
+    if (!deletedTag) {
       return res.status(404).json({ error: 'Tag not found' })
     }
 

@@ -22,13 +22,15 @@ const createTagSchema = z.object({
     .optional(),
 })
 
-const updateTagSchema = z.object({
-  name: z.string().min(1).max(50).optional(),
-  color: z
-    .string()
-    .regex(/^#[0-9A-Fa-f]{6}$/, 'Color must be a valid hex color')
-    .optional(),
-})
+const updateTagSchema = z
+  .object({
+    name: z.string().min(1).max(50).optional(),
+    color: z
+      .string()
+      .regex(/^#[0-9A-Fa-f]{6}$/, 'Color must be a valid hex color')
+      .optional(),
+  })
+  .strict()
 
 const uuidSchema = z.object({
   id: z.uuid('Invalid tag ID format'),
@@ -37,13 +39,13 @@ const uuidSchema = z.object({
 // Routes
 tagRouter.post('/', validateBody(createTagSchema), createTag)
 tagRouter.get('/', getTags)
+tagRouter.get('/popular', popularTags)
 tagRouter.get('/:id', validateParams(uuidSchema), getTagById)
+tagRouter.get('/:id/habits', validateParams(uuidSchema), getTagHabits)
 tagRouter.put(
   '/:id',
   validateParams(uuidSchema),
   validateBody(updateTagSchema),
   updateTag
 )
-tagRouter.delete(':id', validateParams(uuidSchema), deleteTag)
-tagRouter.get('/popular', popularTags)
-tagRouter.get('/:id/habits', validateParams(uuidSchema), getTagHabits)
+tagRouter.delete('/:id', validateParams(uuidSchema), deleteTag)

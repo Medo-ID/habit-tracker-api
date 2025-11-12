@@ -4,11 +4,12 @@ import {
   authenticatedRequest,
   cleanupTestDatabase,
   createTestHabit,
+  createTestTag,
   createTestUser,
   generateFakeToken,
   type TestHabit,
 } from '../helpers.ts'
-import { entries } from '../../src/db/schema.ts'
+import { entries, habitTags } from '../../src/db/schema.ts'
 import { db } from '../../src/db/connection.ts'
 import { eq } from 'drizzle-orm'
 
@@ -96,7 +97,7 @@ describe('habitController', () => {
   })
 
   describe('GET /api/habits/:id, getHabitById', () => {
-    it('should return habit with specific od for current user', async () => {
+    it('should return one habit', async () => {
       const { user, accessToken } = await createTestUser()
       const habit = await createTestHabit(user.id, demoHabit)
       const response = await request(app)
@@ -107,7 +108,7 @@ describe('habitController', () => {
       expect(response.body.habit.id).toBe(habit.id)
     })
 
-    it('should return 404 if habit not found', async () => {
+    it('should return 400 when habit id is invalid uuid', async () => {
       const res = await authenticatedRequest('get', '/api/habits/bad-id')
 
       expect(res.status).toBe(400)
@@ -116,7 +117,7 @@ describe('habitController', () => {
   })
 
   describe('PUT /api/habits/:id, updateHabit', () => {
-    it('should update habit and return updated data', async () => {
+    it('should update habit and return it', async () => {
       const { user, accessToken } = await createTestUser()
       const habit = await createTestHabit(user.id, demoHabit)
       const response = await request(app)
@@ -137,7 +138,7 @@ describe('habitController', () => {
       expect(habit.targetCount).not.toBe(updatedHabit.body.habit.targetCount)
     })
 
-    it('should throw error when habit not found', async () => {
+    it('should return 404 when habit does not exist', async () => {
       const uuid = crypto.randomUUID()
       const response = await authenticatedRequest(
         'put',
@@ -183,7 +184,7 @@ describe('habitController', () => {
       expect(response.body.entry.habitId).toBe(entry.habitId)
     })
 
-    it('should throw error when habit not found', async () => {
+    it('should return 404 when habit does not exist', async () => {
       const uuid = crypto.randomUUID()
       const response = await authenticatedRequest(
         'post',
@@ -195,7 +196,7 @@ describe('habitController', () => {
       expect(response.body.error).toBe('Habit not found')
     })
 
-    it('should return entry when user complete a habit', async () => {
+    it('should return 400 when habit is not active', async () => {
       const { user, accessToken } = await createTestUser()
       const habit = await createTestHabit(user.id, {
         ...demoHabit,
@@ -212,11 +213,124 @@ describe('habitController', () => {
   })
 
   describe('POST /api/habits/:id/tags, addTagsToHabit', () => {
-    it('should return habit with specific od for current user', async () => {})
+    it('should add tags to specific habit', async () => {
+      const { user, accessToken } = await createTestUser()
+      const tag1 = await createTestTag()
+      const tag2 = await createTestTag({ name: 'Sport', color: '#fa5a45' })
+      const habit = await createTestHabit(user.id)
+      const response = await request(app)
+        .post(`/api/habits/${habit.id}/tags`)
+        .send({
+          tagIds: [tag1.id, tag2.id],
+        })
+        .set('Authorization', `Bearer ${accessToken}`)
+      const addedHabitTags = await db
+        .select()
+        .from(habitTags)
+        .where(eq(habitTags.habitId, habit.id))
+
+      expect(response.status).toBe(200)
+      expect(response.body.message).toBe('Tags added to habit')
+      expect(addedHabitTags.length).toBe(2)
+    })
+
+    it('should not duplicate existing tags if already linked', async () => {
+      const { user, accessToken } = await createTestUser()
+      const tag = await createTestTag()
+      const habit = await createTestHabit(user.id)
+      // add it early using db
+      await db.insert(habitTags).values({ habitId: habit.id, tagId: tag.id })
+      // add it again using api endpoint
+      const response = await request(app)
+        .post(`/api/habits/${habit.id}/tags`)
+        .send({
+          tagIds: [tag.id],
+        })
+        .set('Authorization', `Bearer ${accessToken}`)
+      // query database
+      const addedHabitTags = await db
+        .select()
+        .from(habitTags)
+        .where(eq(habitTags.habitId, habit.id))
+
+      expect(response.status).toBe(200)
+      expect(response.body.message).toBe('Tags added to habit')
+      // should be only one tag for this habit
+      expect(addedHabitTags.length).toBe(1)
+    })
+
+    it('should return 404 when habit does not exist', async () => {
+      const { accessToken } = await createTestUser()
+      const tag1 = await createTestTag()
+      const tag2 = await createTestTag({ name: 'Sport', color: '#fa5a45' })
+      const uuid = crypto.randomUUID()
+      const response = await request(app)
+        .post(`/api/habits/${uuid}/tags`)
+        .send({
+          tagIds: [tag1.id, tag2.id],
+        })
+        .set('Authorization', `Bearer ${accessToken}`)
+
+      expect(response.status).toBe(404)
+      expect(response.body.error).toBe('Habit not found')
+    })
+
+    it('should return 400 when tagIds is invalid', async () => {
+      const { user, accessToken } = await createTestUser()
+      const habit = await createTestHabit(user.id)
+      const response = await request(app)
+        .post(`/api/habits/${habit.id}/tags`)
+        .send({ tagIds: ['bad-uuid'] })
+        .set('Authorization', `Bearer ${accessToken}`)
+
+      expect(response.status).toBe(400)
+      expect(response.body.error).toBe('Validation failed')
+    })
+
+    it('should return 400 when tag does not exist', async () => {
+      const { user, accessToken } = await createTestUser()
+      const habit = await createTestHabit(user.id)
+      const uuid = crypto.randomUUID()
+      const response = await request(app)
+        .post(`/api/habits/${habit.id}/tags`)
+        .send({ tagIds: [uuid] })
+        .set('Authorization', `Bearer ${accessToken}`)
+
+      expect(response.status).toBe(400)
+      expect(response.body.error).toBe('Invalid reference')
+    })
   })
 
   describe('DELETE /api/habits/:id/tags/:tagId, removeTagFromHabit', () => {
-    it('should return habit with specific od for current user', async () => {})
+    it('should remove existing tag from existing habit', async () => {
+      const { user, accessToken } = await createTestUser()
+      const tag = await createTestTag()
+      const habit = await createTestHabit(user.id)
+      await db.insert(habitTags).values({ habitId: habit.id, tagId: tag.id })
+      const response = await request(app)
+        .delete(`/api/habits/${habit.id}/tags/${tag.id}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+      const existsHabitTags = await db
+        .select()
+        .from(habitTags)
+        .where(eq(habitTags.habitId, habit.id))
+
+      expect(response.status).toBe(200)
+      expect(existsHabitTags.length).toBe(0)
+      expect(response.body.message).toBe('Tag removed from habit')
+    })
+
+    it('should return 404 when habit does not exist', async () => {
+      const { accessToken } = await createTestUser()
+      const tag = await createTestTag()
+      const uuid = crypto.randomUUID()
+      const response = await request(app)
+        .delete(`/api/habits/${uuid}/tags/${tag.id}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+
+      expect(response.status).toBe(404)
+      expect(response.body.error).toBe('Habit not found')
+    })
   })
 
   describe('DELETE /api/habits/:id, deleteHabit', () => {
@@ -231,7 +345,7 @@ describe('habitController', () => {
       expect(response.body.message).toBe('Habit deleted successfully')
     })
 
-    it('should throw error when habit not found', async () => {
+    it('should return 404 when habit does not exist', async () => {
       const uuid = crypto.randomUUID()
       const response = await authenticatedRequest(
         'delete',

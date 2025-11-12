@@ -87,7 +87,7 @@ export const createTestHabit = async (
   return habit
 }
 
-export const createTags = async (tagData: Partial<TestTag> = {}) => {
+export const createTestTag = async (tagData: Partial<TestTag> = {}) => {
   const defaultData = {
     name: 'Health',
     color: '#939ca1',
