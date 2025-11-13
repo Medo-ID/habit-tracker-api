@@ -20,7 +20,7 @@ export const generateTokens = async (payload: JwtPayload) => {
   const accessToken = await new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime(env.ACCESS_EXPIRES_IN || '5m')
+    .setExpirationTime(env.ACCESS_EXPIRES_IN || '15m')
     .sign(accessSecretKey)
 
   if (!env.REFRESH_SECRET) {
@@ -31,7 +31,7 @@ export const generateTokens = async (payload: JwtPayload) => {
   const refreshToken = await new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime(env.ACCESS_EXPIRES_IN || '15d')
+    .setExpirationTime(env.REFRESH_EXPIRES_IN || '15d')
     .sign(refreshSecretKey)
 
   return { accessToken, refreshToken }

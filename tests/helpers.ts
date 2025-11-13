@@ -35,8 +35,6 @@ export interface TestTag {
   color: string
 }
 
-type HttpMethods = 'post' | 'get' | 'put' | 'patch' | 'delete' | 'option'
-
 export const createTestUser = async (userData: Partial<TestUser> = {}) => {
   const defaultUser: TestUser = {
     email: `${Date.now()}@example.com`,
@@ -98,16 +96,35 @@ export const createTestTag = async (tagData: Partial<TestTag> = {}) => {
   return tag
 }
 
-export const authenticatedRequest = async (
-  method: HttpMethods,
-  url: string,
-  data = {}
-) => {
-  const { accessToken } = await createTestUser()
-  const req = request(app)
-    [method](url)
-    .set('Authorization', `Bearer ${accessToken}`)
-  return ['post', 'put', 'patch'].includes(method) ? req.send(data) : req
+export const createTestNonAuth = async () => {
+  const nonAuth = {
+    get: (url: string) => request(app).get(url),
+    post: (url: string) => request(app).post(url),
+    put: (url: string) => request(app).put(url),
+    patch: (url: string) => request(app).patch(url),
+    delete: (url: string) => request(app).delete(url),
+  }
+
+  return { nonAuth }
+}
+
+export const createTestAuth = async () => {
+  const { user, accessToken, rawPassword } = await createTestUser()
+
+  const auth = {
+    get: (url: string) =>
+      request(app).get(url).set('Authorization', `Bearer ${accessToken}`),
+    post: (url: string) =>
+      request(app).post(url).set('Authorization', `Bearer ${accessToken}`),
+    put: (url: string) =>
+      request(app).put(url).set('Authorization', `Bearer ${accessToken}`),
+    patch: (url: string) =>
+      request(app).patch(url).set('Authorization', `Bearer ${accessToken}`),
+    delete: (url: string) =>
+      request(app).delete(url).set('Authorization', `Bearer ${accessToken}`),
+  }
+
+  return { auth, user, accessToken, rawPassword }
 }
 
 export const generateFakeToken = async (

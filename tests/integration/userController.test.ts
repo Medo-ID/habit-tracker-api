@@ -1,38 +1,28 @@
-import request from 'supertest'
 import { eq } from 'drizzle-orm'
 import { db } from '../../src/db/connection.ts'
 import { users } from '../../src/db/schema.ts'
-import {
-  authenticatedRequest,
-  cleanupTestDatabase,
-  createTestUser,
-} from '../helpers.ts'
-import { app } from '../../src/server.ts'
+import { cleanupTestDatabase, createTestAuth } from '../helpers.ts'
 
 describe('userController', () => {
   afterEach(async () => await cleanupTestDatabase())
 
   describe('GET /api/users/profile, getProfile', () => {
     it('should fetch profile for the correct user', async () => {
-      const { user, accessToken } = await createTestUser()
-      const response = await request(app)
-        .get('/api/users/profile')
-        .set('Authorization', `Bearer ${accessToken}`)
+      const { auth, user } = await createTestAuth()
+      const res = await auth.get('/api/users/profile')
 
-      expect(response.status).toBe(200)
-      expect(response.body.user.id).toBe(user.id)
-      expect(response.body.user.email).toBe(user.email)
+      expect(res.status).toBe(200)
+      expect(res.body.user.id).toBe(user.id)
+      expect(res.body.user.email).toBe(user.email)
     })
 
     it('should return 404 when user does not exists', async () => {
-      const { user, accessToken } = await createTestUser()
+      const { auth, user } = await createTestAuth()
       await db.delete(users).where(eq(users.id, user.id))
-      const response = await request(app)
-        .get('/api/users/profile')
-        .set('Authorization', `Bearer ${accessToken}`)
+      const res = await auth.get('/api/users/profile')
 
-      expect(response.status).toBe(404)
-      expect(response.body.error).toBe('User not found')
+      expect(res.status).toBe(404)
+      expect(res.body.error).toBe('User not found')
     })
   })
 
@@ -45,71 +35,61 @@ describe('userController', () => {
     }
 
     it('should update and return user profile data', async () => {
-      const response = await authenticatedRequest(
-        'put',
-        '/api/users/profile',
-        updateData
-      )
+      const { auth } = await createTestAuth()
+      const res = await auth.put('/api/users/profile').send(updateData)
 
-      expect(response.status).toBe(200)
-      expect(response.body.user.email).toBe(updateData.email)
-      expect(response.body.user.username).toBe(updateData.username)
+      expect(res.status).toBe(200)
+      expect(res.body.user.email).toBe(updateData.email)
+      expect(res.body.user.username).toBe(updateData.username)
     })
 
     it('should return 400 when body validation fails', async () => {
-      const response = await authenticatedRequest('put', '/api/users/profile', {
-        badField: '',
-      })
+      const { auth } = await createTestAuth()
+      const res = await auth.put('/api/users/profile').send({ badField: '' })
 
-      expect(response.status).toBe(400)
-      expect(response.body.error).toBe('Validation failed')
+      expect(res.status).toBe(400)
+      expect(res.body.error).toBe('Validation failed')
     })
 
     it('should return 404 when user does not exists', async () => {
-      const { user, accessToken } = await createTestUser()
+      const { auth, user } = await createTestAuth()
       await db.delete(users).where(eq(users.id, user.id))
-      const response = await request(app)
-        .put('/api/users/profile')
-        .send(updateData)
-        .set('Authorization', `Bearer ${accessToken}`)
+      const res = await auth.put('/api/users/profile').send(updateData)
 
-      expect(response.status).toBe(404)
-      expect(response.body.error).toBe('User not found')
+      expect(res.status).toBe(404)
+      expect(res.body.error).toBe('User not found')
     })
   })
 
   describe('POST /api/users/change-password, changePassword', () => {
     it("should update current authenticated user's password", async () => {
-      const { accessToken, rawPassword } = await createTestUser()
-      const response = await request(app)
+      const { auth, rawPassword } = await createTestAuth()
+      const res = await auth
         .post('/api/users/change-password')
         .send({ oldPassword: rawPassword, newPassword: 'Demo1234@' })
-        .set('Authorization', `Bearer ${accessToken}`)
 
-      expect(response.status).toBe(201)
+      expect(res.status).toBe(201)
     })
 
     it('should throw error when old password is incorrect', async () => {
-      const { accessToken } = await createTestUser()
-      const response = await request(app)
+      const { auth } = await createTestAuth()
+      const res = await auth
         .post('/api/users/change-password')
         .send({ oldPassword: 'badOldPassword', newPassword: 'Demo1234@' })
-        .set('Authorization', `Bearer ${accessToken}`)
 
-      expect(response.status).toBe(401)
-      expect(response.body.error).toBe('Old password is incorrect')
+      expect(res.status).toBe(401)
+      expect(res.body.error).toBe('Old password is incorrect')
     })
 
     it('should return 404 when user does not exists', async () => {
-      const { user, accessToken, rawPassword } = await createTestUser()
+      const { auth, user, rawPassword } = await createTestAuth()
       await db.delete(users).where(eq(users.id, user.id))
-      const response = await request(app)
+      const res = await auth
         .post('/api/users/change-password')
         .send({ oldPassword: rawPassword, newPassword: 'Demo1234@' })
-        .set('Authorization', `Bearer ${accessToken}`)
 
-      expect(response.status).toBe(404)
-      expect(response.body.error).toBe('User not found')
+      expect(res.status).toBe(404)
+      expect(res.body.error).toBe('User not found')
     })
   })
 })

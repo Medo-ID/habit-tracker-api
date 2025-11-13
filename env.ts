@@ -23,7 +23,7 @@ const envSchema = z.object({
   DATABASE_URL: z.string().startsWith('postgresql://'),
 
   ACCESS_SECRET: z.string().min(32, 'Must be 32 chars long'),
-  ACCESS_EXPIRES_IN: z.string().default('5m'),
+  ACCESS_EXPIRES_IN: z.string().default('15m'),
   REFRESH_SECRET: z.string().min(32, 'Must be 32 chars long'),
   REFRESH_EXPIRES_IN: z.string().default('15d'),
 

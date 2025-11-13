@@ -88,7 +88,7 @@ export async function updateTag(req: AuthenticatedRequest, res: Response) {
       })
 
       if (!existsTag) {
-        return res.status(404).json({ error: 'Tag name does not exists' })
+        return res.status(404).json({ error: 'Tag name does not exist' })
       }
     }
 
@@ -147,7 +147,7 @@ export async function popularTags(req: AuthenticatedRequest, res: Response) {
         color: tag.color,
         usageCount: tag.habitTags.length,
         createdAt: tag.createdAt,
-        updateAt: tag.updatedAt,
+        updatedAt: tag.updatedAt,
       }))
       .sort((a, b) => b.usageCount - a.usageCount)
       .slice(0, 10)
@@ -181,7 +181,7 @@ export async function getTagHabits(req: AuthenticatedRequest, res: Response) {
         targetCount: habits.targetCount,
         isActive: habits.isActive,
         createdAt: habits.createdAt,
-        updateAt: habits.updatedAt,
+        updatedAt: habits.updatedAt,
       })
       .from(habits)
       .innerJoin(habitTags, eq(habits.id, habitTags.habitId))

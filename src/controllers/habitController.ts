@@ -226,7 +226,7 @@ export async function completeHabit(req: AuthenticatedRequest, res: Response) {
       })
       .returning()
 
-    res.json({ message: 'Habit completed', entry: newEntry })
+    res.status(201).json({ message: 'Habit completed', entry: newEntry })
   } catch (error) {
     console.error('Complete habit error', error)
     res.status(500).json({ error: 'Failed to complete habit' })

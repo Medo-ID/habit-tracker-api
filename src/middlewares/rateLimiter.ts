@@ -24,6 +24,10 @@ export async function customRateLimiter(
   next: NextFunction
 ) {
   try {
+    if (env.NODE_ENV === 'test') {
+      return next()
+    }
+
     if (!redisClient.isOpen) {
       throw new Error('Redis client is not connected.')
     }
