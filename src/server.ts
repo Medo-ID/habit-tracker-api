@@ -12,6 +12,7 @@ import { tagRouter } from './routes/tagRoutes.ts'
 import { habitRouter } from './routes/habitRoutes.ts'
 import { notFound } from './middlewares/notFound.ts'
 import { globalError } from './middlewares/globalError.ts'
+import { customRateLimiter } from './middlewares/rateLimiter.ts'
 
 const app = express()
 
@@ -21,6 +22,9 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(morgan('dev', { skip: () => isTest() }))
+
+// Custom rate limiter
+app.use(customRateLimiter)
 
 // API Endpoints
 app.use('/api/auth', authRouter)
