@@ -85,6 +85,8 @@ NOTES.md
 .claude/
 
 # Database files
+migrations/
+*.sql
 *.sqlite
 *.sqlite3
 *.db
