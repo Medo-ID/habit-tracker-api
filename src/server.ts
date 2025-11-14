@@ -2,7 +2,7 @@ import express from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
 import morgan from 'morgan'
-import { isTest } from '../env.ts'
+import { env, isTest } from '../env.ts'
 import { isAuthenticated } from './middlewares/auth.ts'
 
 // Routers Imports
@@ -18,13 +18,27 @@ const app = express()
 
 // Regular middleware
 app.use(helmet())
-app.use(cors())
+app.use(
+  cors({
+    origin: env.CORS_ORIGIN,
+    credentials: true,
+  })
+)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(morgan('dev', { skip: () => isTest() }))
 
 // Custom rate limiter
 app.use(customRateLimiter)
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    service: 'Habit Tracker API',
+  })
+})
 
 // API Endpoints
 app.use('/api/auth', authRouter)
