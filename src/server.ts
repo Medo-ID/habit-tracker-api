@@ -13,6 +13,10 @@ import { habitRouter } from './routes/habitRoutes.ts'
 import { notFound } from './middlewares/notFound.ts'
 import { globalError } from './middlewares/globalError.ts'
 import { customRateLimiter } from './middlewares/rateLimiter.ts'
+import { homePageHTML } from './views/homePage.ts'
+import { readFile } from 'fs/promises'
+import path from 'path'
+import { renderDocsPage } from './views/docsPage.ts'
 
 const app = express()
 
@@ -38,6 +42,24 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     service: 'Habit Tracker API',
   })
+})
+
+// Link to my portfolio 😊
+app.get('/', (req, res) => {
+  res.set('Content-Type', 'text/html')
+  res.send(homePageHTML)
+})
+
+// Docs
+app.get('/docs', async (req, res) => {
+  try {
+    const html = await renderDocsPage()
+    res.set('Content-Type', 'text/html')
+    res.send(html)
+  } catch (error) {
+    console.error(error)
+    res.status(500).send('Failed to load docs')
+  }
 })
 
 // API Endpoints
