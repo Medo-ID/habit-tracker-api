@@ -1,26 +1,31 @@
-# .github/workflows/test.yml
-name: Test API
+name: CI - Tests
 
 on:
-  push:
-    branches: [main]
   pull_request:
-    branches: [main]
+    branches: [main] # Only run checks during PRs
+  workflow_dispatch: # Allow manual runs
 
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '24.5.0'
-          npm: cache
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Type Check
+        run: npm run typecheck --if-present
+
+      - name: Run Tests
         run: npm test
