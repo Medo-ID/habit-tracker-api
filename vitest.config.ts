@@ -2,11 +2,9 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    reporters: ['dot', 'verbose'],
+    reporters: ['dot', 'github-actions', 'verbose'],
     silent: true,
     logHeapUsage: true,
-    testTimeout: 30000, // 30 seconds
-    hookTimeout: 30000,
     globals: true,
     globalSetup: ['./tests/globalSetup.ts'],
     // Automatically clean up after each test to ensure isolation
