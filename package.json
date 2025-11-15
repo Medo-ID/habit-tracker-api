@@ -17,7 +17,7 @@
     "db:seed": "node src/db/seed.ts",
     "test": "cross-env APP_STAGE=test vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest"
   },
   "keywords": [
     "habit-tracker",

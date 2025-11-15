@@ -1,7 +1,7 @@
 import { Pool } from 'pg'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import * as schema from './schema.ts'
-import { env, isProd } from '../../env.ts'
+import { env, isProd, isTest } from '../../env.ts'
 import { remember } from '@epic-web/remember'
 
 const createPool = () => {
@@ -12,7 +12,7 @@ const createPool = () => {
 
 let client
 
-if (isProd()) {
+if (isProd() || isTest()) {
   client = createPool()
 } else {
   client = remember('dbPool', () => createPool())
