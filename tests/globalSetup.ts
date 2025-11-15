@@ -46,10 +46,10 @@ export async function setup() {
       await db.execute(sql`DROP TABLE IF EXISTS ${users} CASCADE`)
 
       console.log('✅ Test teardown database complete')
-      process.exit(0)
     } catch (error) {
       console.error('❌Failed to teardown test database:', error)
-      process.exit(1)
+    } finally {
+      await db.$client.end()
     }
   }
 }
