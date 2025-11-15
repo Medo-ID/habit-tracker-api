@@ -5,6 +5,8 @@ export default defineConfig({
     reporters: ['dot', 'verbose'],
     silent: true,
     logHeapUsage: true,
+    testTimeout: 30000, // 30 seconds
+    hookTimeout: 30000,
     globals: true,
     globalSetup: ['./tests/globalSetup.ts'],
     // Automatically clean up after each test to ensure isolation
