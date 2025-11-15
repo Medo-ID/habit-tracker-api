@@ -30,3 +30,11 @@ jobs:
 
       - name: Run Tests
         run: npm test
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ACCESS_SECRET: ${{ secrets.ACCESS_SECRET }}
+          ACCESS_EXPIRES_IN: ${{ secrets.ACCESS_EXPIRES_IN }}
+          REFRESH_SECRET: ${{ secrets.REFRESH_SECRET }}
+          REFRESH_EXPIRES_IN: ${{ secrets.REFRESH_EXPIRES_IN }}
+          APP_STAGE: ${{ secrets.APP_STAGE }}
+          NODE_ENV: ${{ secrets.NODE_ENV }}
