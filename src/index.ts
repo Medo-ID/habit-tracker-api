@@ -10,9 +10,9 @@ import helmet from 'helmet'
 // import { userRouter } from './routes/userRoutes.ts'
 // import { tagRouter } from './routes/tagRoutes.ts'
 // import { habitRouter } from './routes/habitRoutes.ts'
-// import { notFound } from './middlewares/notFound.ts'
-// import { globalError } from './middlewares/globalError.ts'
-// import { customRateLimiter } from './middlewares/rateLimiter.ts'
+import { notFound } from './middlewares/notFound.ts'
+import { globalError } from './middlewares/globalError.ts'
+import { customRateLimiter } from './middlewares/rateLimiter.ts'
 import { homePageHTML } from './views/homePage.ts'
 import { renderDocsPage } from './views/docsPage.ts'
 
@@ -33,7 +33,7 @@ app.use(express.urlencoded({ extended: true }))
 // app.use(morgan('dev', { skip: () => isTest() }))
 
 // // Custom rate limiter
-// app.use(customRateLimiter)
+app.use(customRateLimiter)
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -69,10 +69,10 @@ app.get('/docs', async (req, res) => {
 // app.use('/api/tags', isAuthenticated, tagRouter)
 
 // 404 handler
-// app.use(notFound)
+app.use(notFound)
 
 // Global error handler
-// app.use(globalError)
+app.use(globalError)
 
 // Only listen locally (for development)
 if (NODE_ENV !== 'production') {
