@@ -44,23 +44,23 @@ app.get('/health', (req, res) => {
   })
 })
 
-// Link to my portfolio 😊
-app.get('/', (req, res) => {
-  res.set('Content-Type', 'text/html')
-  res.send(homePageHTML)
-})
+// // Link to my portfolio 😊
+// app.get('/', (req, res) => {
+//   res.set('Content-Type', 'text/html')
+//   res.send(homePageHTML)
+// })
 
-// Docs
-app.get('/docs', async (req, res) => {
-  try {
-    const html = await renderDocsPage()
-    res.set('Content-Type', 'text/html')
-    res.send(html)
-  } catch (error) {
-    console.error(error)
-    res.status(500).send('Failed to load docs')
-  }
-})
+// // Docs
+// app.get('/docs', async (req, res) => {
+//   try {
+//     const html = await renderDocsPage()
+//     res.set('Content-Type', 'text/html')
+//     res.send(html)
+//   } catch (error) {
+//     console.error(error)
+//     res.status(500).send('Failed to load docs')
+//   }
+// })
 
 // API Endpoints
 app.use('/api/auth', authRouter)
