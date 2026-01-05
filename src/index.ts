@@ -17,21 +17,23 @@ import { homePageHTML } from './views/homePage.ts'
 import { renderDocsPage } from './views/docsPage.ts'
 
 const app = express()
+const PORT = process.env.PORT || 8080
+const NODE_ENV = process.env.NODE_ENV || 'development'
 
 // Regular middleware
 app.use(helmet())
-app.use(
-  cors({
-    origin: env.CORS_ORIGIN,
-    credentials: true,
-  })
-)
+// app.use(
+//   cors({
+//     origin: env.CORS_ORIGIN,
+//     credentials: true,
+//   })
+// )
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(morgan('dev', { skip: () => isTest() }))
+// app.use(morgan('dev', { skip: () => isTest() }))
 
-// Custom rate limiter
-app.use(customRateLimiter)
+// // Custom rate limiter
+// app.use(customRateLimiter)
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -73,10 +75,16 @@ app.use(notFound)
 app.use(globalError)
 
 // Only listen locally (for development)
-if (env.NODE_ENV !== 'production') {
-  app.listen(env.PORT, () => {
-    console.log(`Server running on port ${env.PORT}`)
-    console.log(`Environment: ${env.NODE_ENV}`)
+// if (env.NODE_ENV !== 'production') {
+//   app.listen(env.PORT, () => {
+//     console.log(`Server running on port ${env.PORT}`)
+//     console.log(`Environment: ${env.NODE_ENV}`)
+//   })
+// }
+if (NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server running on: http://localhost:${PORT}`)
+    console.log(`Environment: ${NODE_ENV}`)
   })
 }
 
