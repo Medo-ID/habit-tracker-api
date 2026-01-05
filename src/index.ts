@@ -72,7 +72,7 @@ app.get('/docs', async (req, res) => {
 app.use(notFound)
 
 // Global error handler
-app.use(globalError)
+// app.use(globalError)
 
 // Only listen locally (for development)
 if (NODE_ENV !== 'production') {
