@@ -3,13 +3,13 @@ import helmet from 'helmet'
 // import cors from 'cors'
 // import morgan from 'morgan'
 // import { env, isTest } from '../env.ts'
-// import { isAuthenticated } from './middlewares/auth.ts'
+import { isAuthenticated } from './middlewares/auth.ts'
 
 // // Routers Imports
-// import { authRouter } from './routes/authRoutes.ts'
-// import { userRouter } from './routes/userRoutes.ts'
-// import { tagRouter } from './routes/tagRoutes.ts'
-// import { habitRouter } from './routes/habitRoutes.ts'
+import { authRouter } from './routes/authRoutes.ts'
+import { userRouter } from './routes/userRoutes.ts'
+import { tagRouter } from './routes/tagRoutes.ts'
+import { habitRouter } from './routes/habitRoutes.ts'
 // import { notFound } from './middlewares/notFound.ts'
 // import { globalError } from './middlewares/globalError.ts'
 // import { customRateLimiter } from './middlewares/rateLimiter.ts'
@@ -63,10 +63,10 @@ app.get('/docs', async (req, res) => {
 })
 
 // API Endpoints
-// app.use('/api/auth', authRouter)
-// app.use('/api/habits', isAuthenticated, habitRouter)
-// app.use('/api/users', isAuthenticated, userRouter)
-// app.use('/api/tags', isAuthenticated, tagRouter)
+app.use('/api/auth', authRouter)
+app.use('/api/habits', isAuthenticated, habitRouter)
+app.use('/api/users', isAuthenticated, userRouter)
+app.use('/api/tags', isAuthenticated, tagRouter)
 
 // 404 handler
 // app.use(notFound)
