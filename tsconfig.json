@@ -2,7 +2,9 @@
   "compilerOptions": {
     "noEmit": true,
     "target": "esnext",
-    "module": "nodenext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
     "rewriteRelativeImportExtensions": true,
     "erasableSyntaxOnly": true,
     "verbatimModuleSyntax": true,

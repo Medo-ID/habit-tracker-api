@@ -14,8 +14,6 @@ import { notFound } from './middlewares/notFound.ts'
 import { globalError } from './middlewares/globalError.ts'
 import { customRateLimiter } from './middlewares/rateLimiter.ts'
 import { homePageHTML } from './views/homePage.ts'
-import { readFile } from 'fs/promises'
-import path from 'path'
 import { renderDocsPage } from './views/docsPage.ts'
 
 const app = express()
