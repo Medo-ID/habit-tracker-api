@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { app } from '../src/server.ts'
+import app from '../src/index.ts'
 import { db } from '../src/db/connection.ts'
 import {
   entries,
