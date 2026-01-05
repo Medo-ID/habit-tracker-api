@@ -1,5 +1,5 @@
 import express from 'express'
-import helmet from 'helmet'
+// import helmet from 'helmet'
 import cors from 'cors'
 import morgan from 'morgan'
 import { env, isTest } from '../env.ts'
@@ -19,7 +19,7 @@ import { renderDocsPage } from './views/docsPage.ts'
 const app = express()
 
 // Regular middleware
-app.use(helmet())
+// app.use(helmet())
 app.use(
   cors({
     origin: env.CORS_ORIGIN,
