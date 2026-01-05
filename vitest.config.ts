@@ -17,6 +17,7 @@ export default defineConfig({
         singleThread: true,
       },
     },
+    isolate: false,
   },
   plugins: [],
 })
