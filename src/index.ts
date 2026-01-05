@@ -1,20 +1,20 @@
 import express from 'express'
 import helmet from 'helmet'
 // import cors from 'cors'
-import morgan from 'morgan'
-import { env, isTest } from '../env.ts'
-import { isAuthenticated } from './middlewares/auth.ts'
+// import morgan from 'morgan'
+// import { env, isTest } from '../env.ts'
+// import { isAuthenticated } from './middlewares/auth.ts'
 
 // // Routers Imports
-import { authRouter } from './routes/authRoutes.ts'
-import { userRouter } from './routes/userRoutes.ts'
-import { tagRouter } from './routes/tagRoutes.ts'
-import { habitRouter } from './routes/habitRoutes.ts'
-import { notFound } from './middlewares/notFound.ts'
-import { globalError } from './middlewares/globalError.ts'
-import { customRateLimiter } from './middlewares/rateLimiter.ts'
-import { homePageHTML } from './views/homePage.ts'
-import { renderDocsPage } from './views/docsPage.ts'
+// import { authRouter } from './routes/authRoutes.ts'
+// import { userRouter } from './routes/userRoutes.ts'
+// import { tagRouter } from './routes/tagRoutes.ts'
+// import { habitRouter } from './routes/habitRoutes.ts'
+// import { notFound } from './middlewares/notFound.ts'
+// import { globalError } from './middlewares/globalError.ts'
+// import { customRateLimiter } from './middlewares/rateLimiter.ts'
+// import { homePageHTML } from './views/homePage.ts'
+// import { renderDocsPage } from './views/docsPage.ts'
 
 const app = express()
 const PORT = process.env.PORT || 8080
