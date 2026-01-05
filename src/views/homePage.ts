@@ -26,6 +26,8 @@ export const homePageHTML = `
       }
 
       .title {
+        text-align: center;
+        max-width: 450px;
         font-size: 1.4rem;
         margin-bottom: 24px;
         font-weight: 600;
@@ -61,7 +63,7 @@ export const homePageHTML = `
 
   <body>
     <div class="container">
-      <h3 class="title">Habit Tracker API Using Node.js/Express.js</h3>
+      <h3 class="title">Habit Tracker API Using Node.js, Express.js, TypeScript and PostgreSQL</h3>
 
       <a href="https://medo7id.com" target="_blank" class="button">
         Visit My Personal Website
