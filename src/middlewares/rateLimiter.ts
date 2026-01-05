@@ -10,10 +10,6 @@ if (redisClient) {
   await redisClient.connect()
 }
 
-// export const redisClient = createClient()
-// redisClient.on('error', (err) => console.error('Redis Client Error', err))
-// await redisClient.connect()
-
 // Configuration
 const WINDOW_MS = env.RATE_LIMIT_WINDOW_MS
 const MAX_REQUESTS = env.RATE_LIMIT_MAX_REQUESTS
