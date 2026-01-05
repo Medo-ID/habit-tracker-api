@@ -3,9 +3,16 @@ import type { NextFunction, Request, Response } from 'express'
 import { env } from '../../env.ts'
 
 // Redis client
-export const redisClient = createClient()
-redisClient.on('error', (err) => console.error('Redis Client Error', err))
-await redisClient.connect()
+export const redisClient = env.NODE_ENV === 'test' ? null : createClient()
+
+if (redisClient) {
+  redisClient.on('error', (err) => console.error('Redis Client Error', err))
+  await redisClient.connect()
+}
+
+// export const redisClient = createClient()
+// redisClient.on('error', (err) => console.error('Redis Client Error', err))
+// await redisClient.connect()
 
 // Configuration
 const WINDOW_MS = env.RATE_LIMIT_WINDOW_MS
@@ -24,7 +31,7 @@ export async function customRateLimiter(
   next: NextFunction
 ) {
   try {
-    if (env.NODE_ENV === 'test') {
+    if (!redisClient) {
       return next()
     }
 
