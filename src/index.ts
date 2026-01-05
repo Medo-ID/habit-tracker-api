@@ -30,7 +30,7 @@ app.use(helmet())
 // )
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(morgan('dev', { skip: () => isTest() }))
+// app.use(morgan('dev', { skip: () => isTest() }))
 
 // // Custom rate limiter
 // app.use(customRateLimiter)
