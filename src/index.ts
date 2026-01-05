@@ -64,9 +64,9 @@ app.get('/health', (req, res) => {
 
 // API Endpoints
 app.use('/api/auth', authRouter)
-app.use('/api/habits', isAuthenticated, habitRouter)
-app.use('/api/users', isAuthenticated, userRouter)
-app.use('/api/tags', isAuthenticated, tagRouter)
+// app.use('/api/habits', isAuthenticated, habitRouter)
+// app.use('/api/users', isAuthenticated, userRouter)
+// app.use('/api/tags', isAuthenticated, tagRouter)
 
 // 404 handler
 app.use(notFound)
