@@ -63,16 +63,16 @@ app.get('/health', (req, res) => {
 // })
 
 // API Endpoints
-app.use('/api/auth', authRouter)
+// app.use('/api/auth', authRouter)
 // app.use('/api/habits', isAuthenticated, habitRouter)
 // app.use('/api/users', isAuthenticated, userRouter)
 // app.use('/api/tags', isAuthenticated, tagRouter)
 
 // 404 handler
-app.use(notFound)
+// app.use(notFound)
 
 // Global error handler
-app.use(globalError)
+// app.use(globalError)
 
 // Only listen locally (for development)
 if (NODE_ENV !== 'production') {
