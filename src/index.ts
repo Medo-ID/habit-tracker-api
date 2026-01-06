@@ -1,4 +1,3 @@
-import path from 'node:path'
 import express from 'express'
 import helmet from 'helmet'
 // import cors from 'cors'
@@ -18,8 +17,6 @@ import { homePageHTML } from './views/homePage.ts'
 import { renderDocsPage } from './views/docsPage.ts'
 
 const app = express()
-const PORT = process.env.PORT || 8080
-const NODE_ENV = process.env.NODE_ENV || 'development'
 
 // Regular middleware
 app.use(helmet())
@@ -81,10 +78,10 @@ app.use(notFound)
 // app.use(globalError)
 
 // Only listen locally (for development)
-if (NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    console.log(`Server running on: http://localhost:${PORT}`)
-    console.log(`Environment: ${NODE_ENV}`)
+if (env.NODE_ENV !== 'production') {
+  app.listen(env.PORT, () => {
+    console.log(`Server running on: http://localhost:${env.PORT}`)
+    console.log(`Environment: ${env.NODE_ENV}`)
   })
 }
 
