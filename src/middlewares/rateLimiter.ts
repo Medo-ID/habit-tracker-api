@@ -15,9 +15,10 @@ export async function getRedisClient(): Promise<RedisClientType | null> {
 
   if (!connecting) {
     connecting = (async () => {
-      const c = createClient({
-        url: env.REDIS_URL,
-      })
+      const c =
+        env.NODE_ENV === 'production'
+          ? createClient({ url: env.REDIS_URL })
+          : createClient()
 
       c.on('error', (err) => {
         console.error('Redis error:', err)
