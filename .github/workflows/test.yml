@@ -32,6 +32,7 @@ jobs:
         run: npm test --watch false
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          REDIS_URL: 'rediss://'
           ACCESS_SECRET: ${{ secrets.ACCESS_SECRET }}
           ACCESS_EXPIRES_IN: ${{ secrets.ACCESS_EXPIRES_IN }}
           REFRESH_SECRET: ${{ secrets.REFRESH_SECRET }}
