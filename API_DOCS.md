@@ -27,7 +27,7 @@ Content-Type: application/json
 {
   "email": "user@example.com",
   "username": "johndoe",
-  "password": "securePassword123",
+  "password": "secure@Password123",
   "firstName": "John",
   "lastName": "Doe"
 }
@@ -58,7 +58,7 @@ Content-Type: application/json
 
 {
   "email": "user@example.com",
-  "password": "securePassword123"
+  "password": "secure@Password123"
 }
 ```
 
