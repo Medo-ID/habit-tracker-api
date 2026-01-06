@@ -21,6 +21,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().positive().default(8080),
 
   DATABASE_URL: z.string().startsWith('postgresql://'),
+  REDIS_URL: z.string().startsWith('rediss://'),
 
   ACCESS_SECRET: z.string().min(32, 'Must be 32 chars long'),
   ACCESS_EXPIRES_IN: z.string().default('15m'),

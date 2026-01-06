@@ -1,12 +1,38 @@
-import { createClient } from 'redis'
+import { createClient, type RedisClientType } from 'redis'
 import type { NextFunction, Request, Response } from 'express'
 import { env } from '../../env.ts'
 
 // Redis client
-export const redisClient = env.NODE_ENV === 'test' ? null : createClient()
-if (redisClient) {
-  redisClient.on('error', (err) => console.error('Redis Client Error', err))
-  await redisClient.connect()
+let client: RedisClientType | null = null
+let connecting: Promise<RedisClientType> | null = null
+
+export async function getRedisClient(): Promise<RedisClientType | null> {
+  if (env.NODE_ENV === 'test') return null
+
+  if (client?.isOpen) {
+    return client
+  }
+
+  if (!connecting) {
+    connecting = (async () => {
+      const c = createClient({
+        url: env.REDIS_URL,
+      })
+
+      c.on('error', (err) => {
+        console.error('Redis error:', err)
+      })
+
+      await c.connect()
+      client = c
+      return c
+    })().catch((err) => {
+      console.error('Redis connection failed:', err)
+      connecting = null
+      return null
+    })
+  }
+  return connecting
 }
 
 // Configuration
@@ -26,23 +52,20 @@ export async function customRateLimiter(
   next: NextFunction
 ) {
   try {
-    if (!redisClient) {
+    const redis = await getRedisClient()
+    if (!redis) {
       return next()
     }
 
-    if (!redisClient.isOpen) {
-      throw new Error('Redis client is not connected.')
-    }
-
-    const ip = req.ip
+    const ip = req.ip ?? 'unknown'
     const now = Date.now()
 
-    const recordJSON = await redisClient.get(ip)
+    const recordJSON = await redis.get(ip)
     if (!recordJSON) {
       const initialRecord: RequestLog[] = [
         { requestTimestamp: now, requestCount: 1 },
       ]
-      await redisClient.set(ip, JSON.stringify(initialRecord))
+      await redis.set(ip, JSON.stringify(initialRecord))
       return next()
     }
 
@@ -85,11 +108,11 @@ export async function customRateLimiter(
       records.push({ requestTimestamp: now, requestCount: 1 })
     }
 
-    await redisClient.set(ip, JSON.stringify(records))
+    await redis.set(ip, JSON.stringify(records))
 
     return next()
   } catch (error) {
     console.error('Rate limiter error:', error)
-    return res.status(500).json({ error: 'Internal Server Error' })
+    return next()
   }
 }
