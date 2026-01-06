@@ -5,14 +5,14 @@ import morgan from 'morgan'
 import { env, isTest } from '../env.ts'
 import { isAuthenticated } from './middlewares/auth.ts'
 
-// // Routers Imports
+// Routers Imports
 import { authRouter } from './routes/authRoutes.ts'
 import { userRouter } from './routes/userRoutes.ts'
 import { tagRouter } from './routes/tagRoutes.ts'
 import { habitRouter } from './routes/habitRoutes.ts'
 import { notFound } from './middlewares/notFound.ts'
 import { globalError } from './middlewares/globalError.ts'
-// import { customRateLimiter } from './middlewares/rateLimiter.ts'
+import { customRateLimiter } from './middlewares/rateLimiter.ts'
 import { homePageHTML } from './views/homePage.ts'
 import { renderDocsPage } from './views/docsPage.ts'
 
@@ -30,8 +30,8 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(morgan('dev', { skip: () => isTest() }))
 
-// // Custom rate limiter
-// app.use(customRateLimiter)
+// Custom rate limiter
+app.use(customRateLimiter)
 
 // Favicon
 app.get('/favicon.ico', (req, res) => {

@@ -4,7 +4,6 @@ import { env } from '../../env.ts'
 
 // Redis client
 export const redisClient = env.NODE_ENV === 'test' ? null : createClient()
-
 if (redisClient) {
   redisClient.on('error', (err) => console.error('Redis Client Error', err))
   await redisClient.connect()
