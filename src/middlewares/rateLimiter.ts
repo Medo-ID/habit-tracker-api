@@ -24,6 +24,7 @@ export async function getRedisClient(): Promise<RedisClientType | null> {
       })
 
       await c.connect()
+      // @ts-ignore
       client = c
       return c
     })().catch((err) => {
