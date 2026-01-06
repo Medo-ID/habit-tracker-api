@@ -11,7 +11,7 @@ import { userRouter } from './routes/userRoutes.ts'
 import { tagRouter } from './routes/tagRoutes.ts'
 import { habitRouter } from './routes/habitRoutes.ts'
 import { notFound } from './middlewares/notFound.ts'
-// import { globalError } from './middlewares/globalError.ts'
+import { globalError } from './middlewares/globalError.ts'
 // import { customRateLimiter } from './middlewares/rateLimiter.ts'
 import { homePageHTML } from './views/homePage.ts'
 import { renderDocsPage } from './views/docsPage.ts'
@@ -75,7 +75,7 @@ app.use('/api/tags', isAuthenticated, tagRouter)
 app.use(notFound)
 
 // Global error handler
-// app.use(globalError)
+app.use(globalError)
 
 // Only listen locally (for development)
 if (env.NODE_ENV !== 'production') {
