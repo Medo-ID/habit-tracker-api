@@ -1,8 +1,9 @@
+import path from 'node:path'
 import express from 'express'
 import helmet from 'helmet'
 // import cors from 'cors'
-// import morgan from 'morgan'
-// import { env, isTest } from '../env.ts'
+import morgan from 'morgan'
+import { env, isTest } from '../env.ts'
 import { isAuthenticated } from './middlewares/auth.ts'
 
 // // Routers Imports
@@ -30,10 +31,15 @@ app.use(helmet())
 // )
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-// app.use(morgan('dev', { skip: () => isTest() }))
+app.use(morgan('dev', { skip: () => isTest() }))
 
 // // Custom rate limiter
 // app.use(customRateLimiter)
+
+// Favicon
+app.get('/favicon.ico', (req, res) => {
+  res.sendFile(new URL('./public/favicon.ico', import.meta.url).pathname)
+})
 
 // Health check endpoint
 app.get('/health', (req, res) => {
